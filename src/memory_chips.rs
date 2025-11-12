@@ -22,6 +22,7 @@ pub(crate) mod memory_chips {
 
         pub fn read(&mut self) -> bool {
             /*
+            Having to refresh the charge on the DRAM chips, like in reality, was simply too slow to run efficiently
             if (self.refresh_timer < Self::current_time()) {
                 self.charge = false;
                 return false;
@@ -47,6 +48,7 @@ pub(crate) mod memory_chips {
 
     #[derive(Copy, Clone)]
     pub(crate) struct SRAM {
+        // Used for registers
         pub(crate) charge: bool
     }
     impl SRAM {

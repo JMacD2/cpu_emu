@@ -1,7 +1,7 @@
 pub(crate) mod converter{
     use crate::adders::adders::AddSub64bit;
 
-    pub(crate) struct Converter {
+    pub(crate) struct Converter { // Simple file containing conversions between different data representations
     }
 
     impl Converter {

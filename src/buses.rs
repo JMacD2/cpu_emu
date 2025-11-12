@@ -1,17 +1,17 @@
 pub(crate) mod buses{
     pub(crate) struct AddressBus {
-        pub(crate) bits : [bool; 48],
+        pub(crate) bits : [bool; 48], // 48-bit address bus to allow for 48-bit memory addresses
     }
     impl AddressBus {}
     impl Default for AddressBus { fn default() -> Self { AddressBus { bits : [false; 48] } } }
 
     pub(crate) struct DataBus {
-        pub(crate) bits : [bool; 64],
+        pub(crate) bits : [bool; 64], // 64-bit data bus
     }
     impl DataBus {}
     impl Default for DataBus { fn default() -> Self { DataBus { bits : [false; 64] } } }
 
-    pub(crate) struct ControlBus {
+    pub(crate) struct ControlBus { // Sends control signals between CPU and memory
         pub(crate) ready_memory : bool,
         pub(crate) ready_cpu : bool,
         pub(crate) str : bool,

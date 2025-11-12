@@ -12,13 +12,14 @@ pub(crate) mod caches{
     }
 
     pub(crate) struct DataAccessManager {
+        // Manages data flow between memory, caches and CPU
         pub(crate) l1_cache: L1Cache,
         pub(crate) l2_cache: L2Cache,
         pub(crate) main_memory: MainMemory
     }
     impl DataAccessManager {
         pub fn get_index(&self, key: [bool; 48]) -> (i32, i32){
-            // Returns (index, cache (1/2))
+            // Returns (index, cache (1/2)) depending on presence in each cache
             let l1_index = self.l1_cache.get_index(key);
             if l1_index != -1{
                 return (l1_index, 1);
@@ -27,10 +28,12 @@ pub(crate) mod caches{
             if l2_index != -1{
                 return (l2_index, 2);
             }
-            (-1, -1)
+            (-1, -1) // Not present in either cache
         }
 
         pub fn read(&mut self, key : [bool; 48]) -> ([bool; 64], bool){
+            // Read from either cache or memory, depending on where the value is present
+            // If not present in cache, one must instead move to the stall state, taking an extra clock cycle
             let (index, level) = self.get_index(key);
             match level{
                 1 => {
@@ -78,6 +81,8 @@ pub(crate) mod caches{
         }
 
         pub fn write(&mut self, key : [bool; 48], val : [bool; 64]){
+            // Write data to both cache and memory
+            // Sets control bus signals for RAM management
             self.insert_to_cache(key, val);
 
             while self.main_memory.control_bus.lock {};
@@ -116,6 +121,7 @@ pub(crate) mod caches{
     
     
     struct TranslationLookasideBuffer {
+        // WORK IN PROGRESS
         pub(crate) address_map: HashMap<[bool; 32], [bool; 32]>
     }
     impl TranslationLookasideBuffer{
@@ -133,6 +139,7 @@ pub(crate) mod caches{
 
 
     struct CacheQueue {
+        // This object implements the LRU cache inside the L1 and L2 caches
         add_sub64bit: AddSub64bit,
         lru_queue: Vec<CachedObj>,
         max_size: usize
@@ -165,6 +172,7 @@ pub(crate) mod caches{
         }
 
         pub fn insert(&mut self, key : [bool; 48], val : [bool; 64]) -> (CachedObj, bool){
+            // Insert into LRU queue
             let index = self.get_index(key.clone());
             if index != -1{
                 self.lru_queue.remove(index as usize);
@@ -185,6 +193,8 @@ pub(crate) mod caches{
     }
 
 
+
+    // L1 and L2 work functionally identically, implementing the CacheQueue
     pub(crate) struct L1Cache {
         cache_queue: CacheQueue
     }

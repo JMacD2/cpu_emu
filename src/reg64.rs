@@ -1,4 +1,5 @@
 pub(crate) mod reg64{
+    // Simply stores 64-bit values using simulated SRAM chips
     use crate::memory_chips::memory_chips::SRAM;
 
     #[derive(Clone, Copy)]

@@ -6,21 +6,23 @@ pub(crate) mod bitwise_operator{
     use crate::vec_to_str;
 
     pub(crate) struct BitwiseOperator{
-        and_operator: [AND; 64],
+        and_operator: [AND; 64], // Use logic gates for bitwise operations
         or_operator: [OR; 64],
         xor_operator: [XOR; 64],
         not_operator: [NOT; 64]
     }
     impl BitwiseOperator{
+
+        // Perform simple bitwise operations
+
         pub fn value(&self, val0: [bool; 64], val1: [bool; 64], instr_bits: [bool; 4]) -> [bool; 64] {
             let instr_type = FromPrimitive::from_u64(Converter::bin_to_dec_pos_only(instr_bits.to_vec())).unwrap();
             let mut return_bits = [false; 64];
             match instr_type {
                 InstrType::AND => {
                     for i in 0..64 {
-                        return_bits[i] = self.and_operator[i].value(val0[i], val1[i]);
+                        return_bits[i] = self.and_operator[i].value(val0[i], val1[i]); // Iterate over logic gates
                     }
-                    println!("RET - {}", vec_to_str(return_bits.to_vec()));
                     return_bits
                 },
                 InstrType::OR => {

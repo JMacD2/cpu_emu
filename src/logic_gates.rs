@@ -1,4 +1,4 @@
-pub(crate) mod logic_gates {
+pub(crate) mod logic_gates { // Contains logic gates, built of transistors or of other logic gates
     use num_derive::FromPrimitive;
     use crate::transistors::transistors::Nmos;
     use crate::transistors::transistors::Pmos;

@@ -34,6 +34,7 @@ use crate::buses::buses::{AddressBus, ControlBus, DataBus};
 use crate::caches::caches::{DataAccessManager, L1Cache, L2Cache };
 
 fn check_comment(str : String) -> bool {
+    // Check if line is a comment - comment lines start, like in C++, with '//'
     if (str[0..2] == "//".to_string()) || str.len() == 0 || str == "".to_string() {
         return true;
     }
@@ -41,6 +42,7 @@ fn check_comment(str : String) -> bool {
 }
 
 fn vec_to_str(mut val : Vec<bool>) -> String {
+    // Convert boolean vector to string for output/debugging
     val.reverse();
     let mut return_str : String = "".to_string();
     for i in val {
@@ -63,7 +65,10 @@ fn load_memory() {
 
     println!(" ----- DATA LOAD START -----");
 
+    // Load locations and values from 'input_data.txt', and store in the appropriate memory location
+
     let mut memory: MainMemory = MainMemory{
+        // Initialise main memory
         ram_map: Default::default(),
         data_bus: DataBus::default(),
         address_bus: AddressBus::default(),
@@ -74,18 +79,19 @@ fn load_memory() {
     for line in BufReader::new(File::open("./input_data.txt").expect("Input File Error")).lines() {
         let str: String = line.unwrap();
 
-        if check_comment(str.clone()) { continue; }
-        let mut split_str = str.split("/");
+        if check_comment(str.clone()) { continue; } // Skip over comment lines
+
+        let mut split_str = str.split("/"); // Split line into address and data
         let mut addr_hex = split_str.clone().nth(0).unwrap().to_string();
 
-        if !Regex::new(r"^0x[0123456789ABCDEF]{8}$").unwrap().is_match(&*addr_hex.clone()) { continue; }
+        if !Regex::new(r"^0x[0123456789ABCDEF]{8}$").unwrap().is_match(&*addr_hex.clone()) { continue; } // Bypass if address is invalid
         let addr_bits : [bool; 48] = Converter::hex_val_to_bin(addr_hex[2..addr_hex.len()].parse().unwrap()).try_into().unwrap();
 
         let data_str = String::from(&split_str.clone().nth(1).unwrap()[2..split_str.clone().nth(1).unwrap().len()]);
         let datatype = split_str.nth(1).unwrap().chars().nth(1).unwrap();
         let mut new_data = [false; 64];
 
-        match datatype {
+        match datatype { // Datatype can be prefixed with '0x' (Hex), '0d' (Decimal), or '0b' (Binary)
             'x' => {
                 if !Regex::new(r"^[0123456789ABCDEF]+$").unwrap().is_match(&*data_str.clone()) {
                     continue;
@@ -131,11 +137,14 @@ fn load_memory() {
 
     println!(" ----- DATA LOAD COMPLETE -----");
 
-    let mut assembler: assembler_struct = assembler_struct {};
+    let mut assembler: assembler_struct = assembler_struct {}; // Create new Assembler Object
     let mut line_counter: u32 = 0;
     for mut line in BufReader::new(File::open("./input_instr.txt").expect("Instr File Error")).lines() {
         let line_string= line.unwrap();
-        if line_string.clone().len() == 15 { continue; }
+        if line_string.clone().len() == 15 {
+            line_counter += 64; // Make sure blank lines don't affect storage in memory
+            continue;
+        } // Lines are 15 chars long by default (0x000000000000|) - Bypass in this case
         let mut offset = 15;
         while 1==1 {
             if line_string.clone().chars().nth(offset).unwrap() != ' ' {
@@ -146,11 +155,14 @@ fn load_memory() {
             }
         }
         let line_unwrap= line_string.clone()[offset..line_string.len()].to_string();
-        if check_comment(line_unwrap.clone()) { continue; }
-        let assembled: [bool; 64] = assembler.assemble(line_unwrap);
+        if check_comment(line_unwrap.clone()) {
+            line_counter += 64; // Make sure comments don't affect storage in memory
+            continue;
+        } // Bypass comments
+        let assembled: [bool; 64] = assembler.assemble(line_unwrap); // Assemble line
         let new : [bool; 48] = Converter::dec_to_bin_pos_only(line_counter as u64, 48).try_into().unwrap();
         memory.write(new, assembled);
-        line_counter += 64;
+        line_counter += 64; // RAM words are referenced in 64-bit words
     };
 
     println!(" ----- INSTRUCTION LOAD COMPLETE -----");
@@ -162,7 +174,7 @@ fn load_memory() {
         state: CpuState::Fetch, decoded_instruction: ParsedInstruction::default(),
         data_access_manager: DataAccessManager{
             l1_cache: L1Cache::default(), l2_cache: L2Cache::default(), main_memory: memory
-        }
+        } // Set up a default CPU
     };
 
     let mut clk: clock_struct = clock_struct{
@@ -170,11 +182,16 @@ fn load_memory() {
         running : false,
         ctrl : cpu_cu,
         cycle_count : 0
-    };
-    clk.start();
+    }; // Create a default clock, with the new CPU
+    clk.start(); // Start the clock
 
     println!("----- END -----");
 }
+
+/*
+ * THE FOLLOWING SECTION IS IN DEVELOPMENT -- Building C++ GUI in Unreal Engine, with Unix pipe inter-process communication
+ */
+
 
 pub fn send_reg(reg : u8, val : String){
     send_pipe_data("REG//".to_string() + &reg.to_string() + "//" + &val);
@@ -201,7 +218,6 @@ pub fn send_l2_util(util : String){
 }
 
 pub fn send_pipe_data(val : String){
-    
 }
 
 pub fn read_pipe() -> String{

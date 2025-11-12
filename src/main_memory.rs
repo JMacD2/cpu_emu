@@ -4,8 +4,8 @@ pub(crate) mod main_memory {
     use crate::buses::buses::{AddressBus, ControlBus, DataBus};
     use crate::converter::converter::Converter;
 
-    // Double DRAM chip array to emulate square form
-    // RAM array is 64-bit addressable in current form
+    // A HashMap is simply used to reduce to RAM requirements of having a full memory array stored
+    // Stores values in individual 'DRAM' chips, rather than as just booleans
     pub(crate) struct MainMemory {
         pub(crate) ram_map: HashMap<[bool; 48], [DRAM; 64]>,
         pub(crate) data_bus: DataBus,
@@ -16,6 +16,7 @@ pub(crate) mod main_memory {
     impl MainMemory {
 
         pub fn get_valid_start(loc : [bool; 48]) -> [bool; 48] {
+            // Moves addresses to the valid 64-bit word start
             if Converter::bin_to_dec_pos_only(loc.to_vec()) % 64 == 0 {
                 loc
             } else {
@@ -50,7 +51,7 @@ pub(crate) mod main_memory {
             self.ram_map.clear();
         }
 
-        pub fn tick(&mut self){
+        pub fn tick(&mut self){ // Controls interaction with buses
             while self.control_bus.lock {}
             self.control_bus.lock = true;
             if self.control_bus.ready_memory{

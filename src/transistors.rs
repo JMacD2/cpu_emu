@@ -1,4 +1,5 @@
 pub(crate) mod transistors {
+    // Very simply modelled pMOS and nMOS transistors
 
     #[derive(Clone, Copy)]
     pub(crate) struct Pmos {}

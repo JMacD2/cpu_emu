@@ -28,15 +28,17 @@ pub(crate) mod clock{
             self.running = !self.ctrl.halt;
             if self.running{
                 self.cycle_count += 1;
+                // AT PRESENT - both the CPU and RAM are controlled by the same clock - these could be separated in future for greater realism
                 self.ctrl.tick();
                 self.ctrl.data_access_manager.main_memory.tick();
             }
             else{
-                println!("CYCLE COUNT: {0}", self.cycle_count);
+                println!("CYCLE COUNT: {0}", self.cycle_count); // Print total cycle count after completion
             }
         }
 
         fn parse_pipe_data(&mut self, data : String){
+            // WORK-IN-PROGRESS GUI IMPLEMENTATION
             if data == "INC_CLK"{
                 self.clock_speed += 1;
             }

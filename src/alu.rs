@@ -6,6 +6,7 @@ pub(crate) mod alu{
     use crate::converter::converter::Converter;
 
     pub(crate) struct Alu {
+        // Arithmetic Logic Unit, for Addition, Subtraction, Multiplication, and Bitwise operations
         pub(crate) adder_subtractor_64bit: AddSub64bit,
         pub(crate) multiplier: Multiplier,
         pub(crate) bitwise_operator: BitwiseOperator,
@@ -16,33 +17,12 @@ pub(crate) mod alu{
     impl Alu {
 
         fn set_flags(&mut self, bits : [bool; 64], carry_out : bool) -> ([bool; 64], bool){
-            //let mut zero_check = false;
-
-            /*
-            if Converter::bin_to_dec_2s_comp(bits.to_vec()) != 0{
-                zero_check = false;
-            }
-             */
-
-            /*
-            for bit in bits{
-                if bit{
-                    zero_check = false;
-                    break;
-                }
-            }
-
-
-            if zero_check{
-                self.z = true;
-                self.n = false;
-            }
-            */
+            // Set accumulator flags, for use by branches
             if Converter::bin_to_dec_2s_comp(bits.to_vec()) == 0{
                 self.z = true;
                 self.n = false;
             }
-            else if bits[bits.len()-1]{
+            else if bits[bits.len()-1]{ // Final bit being set indicates negative value, through two's complement
                 self.z = false;
                 self.n = true;
             }
@@ -51,12 +31,13 @@ pub(crate) mod alu{
                 self.n = false;
             }
 
-            self.o = carry_out;
+            self.o = carry_out; // Overflow on a carry-out
             (bits, carry_out)
         }
         pub fn add(&mut self, val0 : [bool; 64], val1 : [bool; 64], incr : bool) -> ([bool; 64], bool){
+            // Use Adder to add two numbers
             if incr{
-                self.adder_subtractor_64bit.value(val0, val1, true)
+                self.adder_subtractor_64bit.value(val0, val1, true) // DO NOT overwrite flags for a program counter increment
             }
             else{
                 let (val, c_out) = self.adder_subtractor_64bit.value(val0, val1, true);

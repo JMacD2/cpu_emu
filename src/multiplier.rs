@@ -11,6 +11,9 @@ pub(crate) mod multiplier{
     }
     impl Multiplier {
 
+        // Performs integer multiplication
+        // Requires upgrading for more realism - can't always perform all additions in the same cycle
+
         pub fn value(&mut self, val0: [bool; 64], val1: [bool; 64]) -> [bool; 64]{
             self.multiplier_operand_store.set_data(val0);
             self.multiplier_counter.set_data(val1);

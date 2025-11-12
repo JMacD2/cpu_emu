@@ -1,6 +1,9 @@
 pub(crate) mod adders {
     use crate::logic_gates::logic_gates::{AND, NOT, OR, XOR};
 
+    // HIERARCHICAL BINARY ADDERS/SUBTRACTORS
+    // 64-bit built of 4 16-bit etc.
+
     pub(crate) struct FullAddSub {
         add_and_gate_0: AND,
         add_xor_gate_0: XOR,
@@ -18,7 +21,9 @@ pub(crate) mod adders {
     impl FullAddSub {
         pub fn value(&self, a: bool, b: bool, cin: bool, add: bool) -> (bool, bool) {
 
-            if add {
+            // Single full adder-subtractor, built of logic gates
+
+            if add { // BINARY ADDITION
                 let and_0: bool = self.add_and_gate_0.value(a, b);
                 let xor_0: bool = self.add_xor_gate_0.value(a, b);
                 let and_1: bool = self.add_and_gate_1.value(xor_0, cin);
@@ -26,7 +31,7 @@ pub(crate) mod adders {
                 let s: bool = self.add_xor_gate_1.value(xor_0, cin);
                 (s, c_out)
             }
-            else{
+            else{ // BINARY SUBTRACTION
                 let a_inv: bool = self.sub_not_gate_0.value(a);
                 let and_0: bool = self.sub_and_gate_0.value(a_inv, b);
                 let xor_0: bool = self.sub_xor_gate_0.value(a, b);
@@ -64,6 +69,7 @@ pub(crate) mod adders {
 
 
     pub(crate) struct AddSub4bit {
+        // BUILT OF 4 1-BIT ADDER-SUBTRACTORS
         full_add_sub_0 : FullAddSub,
         full_add_sub_1 : FullAddSub,
         full_add_sub_2 : FullAddSub,
@@ -92,6 +98,7 @@ pub(crate) mod adders {
 
 
     pub struct AddSub16bit {
+        // BUILT OF 4 4-BIT ADDER-SUBTRACTORS
         add_sub_4bit_0 : AddSub4bit,
         add_sub_4bit_1 : AddSub4bit,
         add_sub_4bit_2 : AddSub4bit,
@@ -143,6 +150,7 @@ pub(crate) mod adders {
 
 
     pub struct AddSub64bit {
+        // BUILT OF 4 16-BIT ADDER-SUBTRACTORS
         add_sub_16bit_0 : AddSub16bit,
         add_sub_16bit_1 : AddSub16bit,
         add_sub_16bit_2 : AddSub16bit,

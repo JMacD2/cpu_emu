@@ -3,6 +3,7 @@ pub(crate) mod reg_bank{
     use crate::reg64::reg64::Reg64;
 
     pub(crate) struct RegBank {
+        // Stores all 15 available registers, and allows for access to them
         pub(crate) registers: [Reg64; 14]
     }
     impl RegBank {

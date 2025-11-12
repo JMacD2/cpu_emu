@@ -6,6 +6,7 @@ pub(crate) mod assembler{
     #[repr(u8)]
     #[derive(Clone, FromPrimitive)]
     pub(crate) enum InstrType {
+        // Instruction Type enumeration
         OTH = 0,
         ADD = 1,
         SUB = 2,
@@ -26,6 +27,7 @@ pub(crate) mod assembler{
     #[repr(u8)]
     #[derive(Clone, FromPrimitive)]
     pub(crate) enum BranchConditions {
+        // Branch Type enumeration
         B = 0,
         BEQ = 1,
         BNE = 2,
@@ -38,6 +40,7 @@ pub(crate) mod assembler{
 
     #[derive(Clone)]
     pub(crate) struct ParsedInstruction {
+        // Parsed Instruction Object
         pub(crate) instr_type: InstrType,
         pub(crate) branch_condition : BranchConditions,
         pub(crate) addr : [bool; 48],
@@ -74,11 +77,11 @@ pub(crate) mod assembler{
         }
     }
 
-    pub(crate) struct Assembler {}
+    pub(crate) struct Assembler {} // Convert a line from the instruction input file first into an intermediate representation (ParsedInstruction), then into binary
 
     impl Assembler {
 
-        pub fn get_type(&self, line : String) -> InstrType {
+        pub fn get_type(&self, line : String) -> InstrType { // Get instruction type
             match line.split(" ").nth(0).unwrap() {
                 "ADD" => InstrType::ADD,
                 "SUB" => InstrType::SUB,
@@ -102,7 +105,7 @@ pub(crate) mod assembler{
             }
         }
 
-        pub fn get_condition(&self, line : String) -> BranchConditions {
+        pub fn get_condition(&self, line : String) -> BranchConditions { // Derive branch condition
             match line.split(" ").nth(0).unwrap() {
                 "B" => BranchConditions::B,
                 "BEQ" => BranchConditions::BEQ,
@@ -116,6 +119,8 @@ pub(crate) mod assembler{
         }
 
         pub fn parse_line_data(&mut self, line : String) -> ParsedInstruction {
+
+            // Convert line into an intermediate reperesentation
 
             let mut parsed_instr : ParsedInstruction = ParsedInstruction::default();
             let line_cpy = line.clone();
@@ -142,7 +147,7 @@ pub(crate) mod assembler{
                     let literal : i16 = split_2_parse.parse().expect("Failed to parse target register number");
                     parsed_instr.input_val_1 = Converter::dec_to_bin_pos_only(literal as u64, 16).try_into().unwrap();
 
-                    if split.nth(3).unwrap().chars().nth(0).unwrap() != '#'{ parsed_instr.reg_1 = true;}
+                    if split.nth(3).unwrap().chars().nth(0).unwrap() != '#'{ parsed_instr.reg_1 = true;} // '#' indicates literal, 'R' indicates register reference
                 }
 
                 InstrType::NOT|InstrType::FLIP => {
@@ -210,7 +215,7 @@ pub(crate) mod assembler{
             parsed_instr
         }
 
-        pub fn code_generation(&self, parsed_instruction: ParsedInstruction) -> [bool; 64] {
+        pub fn code_generation(&self, parsed_instruction: ParsedInstruction) -> [bool; 64] { // Convert partial representation into 64-bit binary - described in design document
             let mut return_bits = [false; 64];
             let mut instr_nibble = [false; 4];
             instr_nibble = Converter::dec_to_bin_pos_only(parsed_instruction.instr_type.clone() as u64, 4).try_into().unwrap();
@@ -263,8 +268,8 @@ pub(crate) mod assembler{
         }
 
         pub fn assemble(&mut self, line : String) -> [bool; 64] {
-            let parsed_instruction: ParsedInstruction = self.parse_line_data(line);
-            self.code_generation(parsed_instruction)
+            let parsed_instruction: ParsedInstruction = self.parse_line_data(line); // Generate intermediate representation
+            self.code_generation(parsed_instruction) // Convert intermediate representation into binary and return
         }
     }
 }
