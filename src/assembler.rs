@@ -192,8 +192,15 @@ pub(crate) mod assembler{
                 InstrType::B => {
                     parsed_instr.branch_condition = self.get_condition(line_cpy.clone());
                     let address_string = line_cpy.split(" ").nth(1).unwrap();
-                    let hex_str: String = address_string[1..address_string.len()].parse().unwrap();
-                    parsed_instr.addr = Converter::hex_val_to_bin(hex_str).try_into().unwrap();
+                    if address_string.clone().chars().nth(0).unwrap() == 'R'{
+                        let dec_str: String = address_string[1..address_string.len()].parse().unwrap();
+                        parsed_instr.addr = Converter::dec_to_bin_pos_only(dec_str.parse().unwrap(), 48).try_into().unwrap();
+                        parsed_instr.reg_0 = true;
+                    }
+                    else {
+                        let hex_str: String = address_string[1..address_string.len()].parse().unwrap();
+                        parsed_instr.addr = Converter::hex_val_to_bin(hex_str).try_into().unwrap();
+                    }
                 }
 
                 InstrType::OUT => {
@@ -253,7 +260,8 @@ pub(crate) mod assembler{
                     let mut condition_nibble = [false; 4];
                     condition_nibble = Converter::dec_to_bin_pos_only(parsed_instruction.branch_condition.clone() as u64, 4).try_into().unwrap();
                     return_bits[4..8].copy_from_slice(&condition_nibble);
-                    return_bits[8..56].copy_from_slice(&parsed_instruction.addr);
+                    return_bits[8] = parsed_instruction.reg_0;
+                    return_bits[9..57].copy_from_slice(&parsed_instruction.addr);
                 }
 
                 InstrType::OUT => {

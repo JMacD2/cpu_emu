@@ -120,7 +120,8 @@ pub(crate) mod control_unit{
                             InstrType::B => {
                                 self.decoded_instruction.branch_condition = FromPrimitive::from_u64(Converter::bin_to_dec_pos_only(mdr_data[4..8].to_vec())).unwrap();
                                 let mut addr_data: [bool; 48] = [false; 48];
-                                addr_data.copy_from_slice(&mdr_data[8..56]);
+                                self.decoded_instruction.reg_0 = mdr_data[8];
+                                addr_data.copy_from_slice(&mdr_data[9..57]);
                                 self.decoded_instruction.addr = addr_data;
                             }
 
@@ -257,7 +258,20 @@ pub(crate) mod control_unit{
                                 _ => {}
                             }
                             if valid_branch {
-                                self.pc.set_data(Converter::bit48_to64(self.decoded_instruction.addr));
+
+                                if self.decoded_instruction.reg_0{
+
+                                    let mut reg_data: [bool; 4] = [false; 4];
+                                    reg_data.copy_from_slice(&self.decoded_instruction.addr[0..4]);
+                                    println!("{}", vec_to_str(reg_data.to_vec()));
+
+                                    self.pc.set_data(self.register_bank.get_data(reg_data));
+                                }
+                                else{
+                                    self.pc.set_data(Converter::bit48_to64(self.decoded_instruction.addr));
+                                }
+                                println!("{}", vec_to_str(self.pc.get_data().to_vec()));
+
                             }
                             self.state = CpuState::Fetch;
                         },
