@@ -33,7 +33,7 @@ pub(crate) mod clock{
                 self.ctrl.data_access_manager.main_memory.tick();
             }
             else{
-                println!("CYCLE COUNT: {0}", self.cycle_count); // Print total cycle count after completion
+                println!("\nCYCLE COUNT: {0}", self.cycle_count); // Print total cycle count after completion
             }
         }
 

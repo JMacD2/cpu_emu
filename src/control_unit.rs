@@ -47,6 +47,7 @@ pub(crate) mod control_unit{
                     read_addr[0..48].copy_from_slice(&self.pc.get_data()[0..48]);
                     let (data, cache_hit) = self.data_access_manager.read(read_addr); // Read from cache where possible
 
+
                     if cache_hit{
                         self.memory_instr_reg.set_data(data);
                         self.state = CpuState::Decode;
@@ -263,14 +264,13 @@ pub(crate) mod control_unit{
 
                                     let mut reg_data: [bool; 4] = [false; 4];
                                     reg_data.copy_from_slice(&self.decoded_instruction.addr[0..4]);
-                                    println!("{}", vec_to_str(reg_data.to_vec()));
-
+                                    self.register_bank.set_data([false, true, true, true], self.pc.get_data());
                                     self.pc.set_data(self.register_bank.get_data(reg_data));
                                 }
-                                else{
+                                else {
+                                    self.register_bank.set_data([false, true, true, true], self.pc.get_data());
                                     self.pc.set_data(Converter::bit48_to64(self.decoded_instruction.addr));
                                 }
-                                println!("{}", vec_to_str(self.pc.get_data().to_vec()));
 
                             }
                             self.state = CpuState::Fetch;
@@ -284,7 +284,17 @@ pub(crate) mod control_unit{
                         InstrType::OUT => {
 
                             let output_val= self.register_bank.get_data(self.decoded_instruction.return_register);
-                            println!("R{0} OUTPUT: {1}", Converter::bin_to_dec_2s_comp(self.decoded_instruction.return_register.to_vec()), Converter::bin_to_dec_2s_comp(output_val.to_vec()));
+                            if (self.decoded_instruction.ascii){
+                                if 0 < Converter::bin_to_dec_2s_comp(output_val.to_vec()) && Converter::bin_to_dec_2s_comp(output_val.to_vec()) < 127{
+                                    print!("{}", char::from_u32(Converter::bin_to_dec_2s_comp(output_val.to_vec()) as u32).unwrap());
+                                }
+                                else{
+                                    print!("<INV>");
+                                }
+                            }
+                            else{
+                                println!("R{0} OUTPUT: {1}", Converter::bin_to_dec_pos_only(self.decoded_instruction.return_register.to_vec()), Converter::bin_to_dec_2s_comp(output_val.to_vec()));
+                            }
                             /*
                             if self.decoded_instruction.ascii && Converter::bin_to_dec_2s_comp(output_val.to_vec()) >= 0 && Converter::bin_to_dec_2s_comp(output_val.to_vec()) <= 128{
                                 let mut file = File::open("./output.txt").expect("Output File Error");

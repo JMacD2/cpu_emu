@@ -139,7 +139,7 @@ fn load_memory() {
 
     let mut assembler: assembler_struct = assembler_struct {}; // Create new Assembler Object
     let mut line_counter: u32 = 0;
-    for mut line in BufReader::new(File::open("./input_instr.txt").expect("Instr File Error")).lines() {
+    for mut line in BufReader::new(File::open("./recursive_fib.txt").expect("Instr File Error")).lines() {
         let line_string= line.unwrap();
         if line_string.clone().len() == 15 {
             line_counter += 64; // Make sure blank lines don't affect storage in memory
